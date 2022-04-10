@@ -1,0 +1,17 @@
+[package]
+name = "island_project"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 2
+
+[profile.release]
+opt-level = 3
+
+[dependencies]
+bevy = {git = "https://github.com/bevyengine/bevy.git"}
+hashbrown = "0.12"
+
+[dev-dependencies]
+bevy = { git = "https://github.com/bevyengine/bevy.git", features = ["dynamic"] }

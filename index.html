@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script>
+            WebAssembly.instantiateStreaming(fetch('simple.wasm'), importObject)
+            .then(results => {
+              results.instance.exports.init();
+            });
+        </script>
+    </head>
+</html> 

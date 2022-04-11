@@ -7,6 +7,7 @@ pub enum GameState {
     MainMenu,
     Gameplay,
     Paused,
+    Menu,
     Cutscene,
     GameOver,
 }

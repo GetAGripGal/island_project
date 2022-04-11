@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::prelude::{CollidingDirections, Velocity};
+use crate::prelude::{CollidingDirections, Velocity, GameState};
 
 use self::component::{
     ControllerState, Player, PlayerMovementState, PlayerMovementStats, PlayerState,
@@ -13,19 +13,21 @@ pub struct PlayerPlugin;
 // Implement the plugin for player
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(check_controller.label("check_controller"));
-        app.add_system(update_input.label("update_input").after("check_controller"));
-        app.add_system(
-            update_movement_state
-                .label("update_movement_state")
-                .after("update_input"),
+        app.add_system_set(SystemSet::on_update(GameState::Gameplay)
+            .with_system(check_controller.label("check_controller"))
+            .with_system(update_input.label("update_input").after("check_controller"))
+            .with_system(
+                update_movement_state
+                    .label("update_movement_state")
+                    .after("update_input"),
+            )
+            .with_system(
+                handle_movement
+                    .label("handle_movement")
+                    .after("update_movement_state"),
+            )
+            .with_system(animate)
         );
-        app.add_system(
-            handle_movement
-                .label("handle_movement")
-                .after("update_movement_state"),
-        );
-        app.add_system(animate);
     }
 }
 

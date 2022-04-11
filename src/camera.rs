@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 /// The target for the camera to follow
 #[derive(Debug, Clone, Component)]
-pub struct CameraTarget(pub Entity);
+pub struct CameraTarget(pub Option<Entity>);
 
 /// The camera offset
 #[derive(Debug, Default, Clone, Component)]
@@ -28,9 +28,25 @@ pub struct GameCameraPlugin;
 
 impl Plugin for GameCameraPlugin {
     fn build(&self, app: &mut App) {
+        app.add_startup_system(setup);
         app.add_system(camera_scaling);
         app.add_system(update_position);
     }
+}
+
+/// Setup the camera plugin
+fn setup(mut commands: Commands) {
+    // Spawn the camera
+    commands
+        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .insert(GameCameraConfig {
+            scale: 0.8,
+            viewport_size: Vec2::new(320.0, 180.0),
+            ..Default::default()
+        })
+        .insert(CameraTarget(None))
+        .insert(CameraSpeed(2.0))
+        .insert(CameraOffset(Vec2::new(0.0, 24.0)));
 }
 
 /// Handles the camera scaling
@@ -60,18 +76,23 @@ fn update_position(
     >,
 ) {
     for (mut transform, target, speed, offset) in cameras.iter_mut() {
-        let target = transform_entities.get(target.0).unwrap();
-
-        if let Some(offset) = offset {
-            transform.translation.x += (speed.0 * time.delta_seconds())
-                * (target.translation.x + offset.0.x - transform.translation.x);
-            transform.translation.y += (speed.0 * time.delta_seconds())
-                * (target.translation.y + offset.0.y - transform.translation.y);
+        if let Some(target) = target.0 {
+            if let Ok(target) = transform_entities.get(target) {
+                if let Some(offset) = offset {
+                    transform.translation.x += (speed.0 * time.delta_seconds())
+                        * (target.translation.x + offset.0.x - transform.translation.x);
+                    transform.translation.y += (speed.0 * time.delta_seconds())
+                        * (target.translation.y + offset.0.y - transform.translation.y);
+                } else {
+                    transform.translation.x +=
+                        (speed.0 * time.delta_seconds()) * (target.translation.x - transform.translation.x);
+                    transform.translation.y +=
+                        (speed.0 * time.delta_seconds()) * (target.translation.y - transform.translation.y);
+                }
+            }
         } else {
-            transform.translation.x +=
-                (speed.0 * time.delta_seconds()) * (target.translation.x - transform.translation.x);
-            transform.translation.y +=
-                (speed.0 * time.delta_seconds()) * (target.translation.y - transform.translation.y);
+            transform.translation.x = 0.0;
+            transform.translation.y = 0.0;
         }
     }
 }

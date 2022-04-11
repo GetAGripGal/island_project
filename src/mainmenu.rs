@@ -1,6 +1,6 @@
-use bevy::{prelude::*, app::AppExit};
+use bevy::{app::AppExit, prelude::*};
 
-use crate::{state::GameState, prelude::Fonts};
+use crate::{prelude::Fonts, state::GameState, levels::{SpawnLevelEvent, DestroyLevelsEvent}};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -32,17 +32,18 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::MainMenu).with_system(setup));
-        app.add_system_set(SystemSet::on_update(GameState::MainMenu)
-            .with_system(change_button_looks)
-            .with_system(handle_start_button)
-            .with_system(handle_quit_button)
+        app.add_system_set(
+            SystemSet::on_update(GameState::MainMenu)
+                .with_system(change_button_looks)
+                .with_system(handle_start_button)
+                .with_system(handle_quit_button),
         );
         app.add_system_set(SystemSet::on_exit(GameState::MainMenu).with_system(destroy));
     }
 }
 
 /// Setup the main menu
-fn setup(fonts: Res<Fonts>, mut commands: Commands) {
+fn setup(fonts: Res<Fonts>, mut commands: Commands, mut destroy_level_events: EventWriter<DestroyLevelsEvent>) {
     // Spawn the ui camera
     commands.spawn_bundle(UiCameraBundle::default());
 
@@ -62,15 +63,18 @@ fn setup(fonts: Res<Fonts>, mut commands: Commands) {
         .insert(MainMenuUi)
         .with_children(|parent| {
             // Spawn the title text
-            parent
-                .spawn_bundle(TextBundle {
-                    text: Text::with_section("Island Project", TextStyle {
+            parent.spawn_bundle(TextBundle {
+                text: Text::with_section(
+                    "Island Project",
+                    TextStyle {
                         font: fonts.fira_sans.clone(),
                         font_size: 100.0,
                         ..Default::default()
-                    }, Default::default()),
-                    ..Default::default()
-                });
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
+            });
 
             // Spawn the start button
             parent
@@ -167,6 +171,9 @@ fn setup(fonts: Res<Fonts>, mut commands: Commands) {
                     });
                 });
         });
+    
+    // Destroy the level
+    destroy_level_events.send(DestroyLevelsEvent);
 }
 
 /// Destroys the main menu ui
@@ -199,9 +206,16 @@ fn change_button_looks(
 }
 
 /// Handle the start menu button
-fn handle_start_button(buttons: Query<&Interaction, (Changed<Interaction>, With<Button>, With<StartButton>)>, mut state: ResMut<State<GameState>>) {
+fn handle_start_button(
+    buttons: Query<&Interaction, (Changed<Interaction>, With<Button>, With<StartButton>)>,
+    mut spawn_level_events: EventWriter<SpawnLevelEvent>,
+    mut state: ResMut<State<GameState>>,
+) {
     buttons.for_each(|interaction| {
         if *interaction == Interaction::Clicked {
+            // Spawn the level
+            spawn_level_events.send(SpawnLevelEvent("".into()));
+            // Set the state to gameplay
             if *state.current() != GameState::Gameplay {
                 state.set(GameState::Gameplay).unwrap();
             }
@@ -210,7 +224,10 @@ fn handle_start_button(buttons: Query<&Interaction, (Changed<Interaction>, With<
 }
 
 /// Handle the quit button
-fn handle_quit_button(buttons: Query<&Interaction, (Changed<Interaction>, With<Button>, With<QuitButton>)>, mut quit_event: EventWriter<AppExit>) {
+fn handle_quit_button(
+    buttons: Query<&Interaction, (Changed<Interaction>, With<Button>, With<QuitButton>)>,
+    mut quit_event: EventWriter<AppExit>,
+) {
     buttons.for_each(|interaction| {
         if *interaction == Interaction::Clicked {
             quit_event.send(AppExit);

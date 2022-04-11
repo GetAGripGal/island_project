@@ -5,7 +5,7 @@ use crate::{prelude::StartupState, state::GameState};
 /// The fonts in the game
 #[derive(Debug, Default, Clone)]
 pub struct Fonts {
-    pub fira_sans: Handle<Font>, 
+    pub fira_sans: Handle<Font>,
 }
 
 /// The state the asset loading systems are ing
@@ -31,13 +31,9 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<AssetLoadingState>();
+        app.add_system_set(SystemSet::on_enter(GameState::Startup).with_system(load_fonts));
         app.add_system_set(
-            SystemSet::on_enter(GameState::Startup)
-            .with_system(load_fonts),
-        );
-        app.add_system_set(
-            SystemSet::on_update(GameState::Startup)
-            .with_system(check_for_completion),
+            SystemSet::on_update(GameState::Startup).with_system(check_for_completion),
         );
     }
 }

@@ -1,3 +1,5 @@
+use crate::prelude::GameState;
+
 use self::component::{
     Collider, CollidingDirections, CollidingEntities, Friction, GravityScale, PhysicsBody, Velocity,
 };
@@ -28,7 +30,7 @@ impl Plugin for PhysicsPlugin {
         app.init_resource::<PhysicsConfig>();
 
         app.add_system_set(
-            SystemSet::new()
+            SystemSet::on_update(GameState::Gameplay)
                 .with_system(apply_gravity.label("apply_gravity"))
                 .with_system(
                     handle_collisions

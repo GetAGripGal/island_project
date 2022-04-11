@@ -1,3 +1,5 @@
+use crate::prelude::{Player, Fonts};
+
 use super::ItemDescriptor;
 use bevy::prelude::*;
 
@@ -58,5 +60,40 @@ impl Inventory {
             return Some(());
         }
         None
+    }
+}
+
+/// Spawns the inentory menu of the player
+pub fn spawn_inventory_menu(
+    fonts: Res<Fonts>,
+    inventory: Query<&Inventory, With<Player>>, 
+    mut commands: Commands,
+) {
+    // Only show the players inventory
+    if let Some(inventory) = inventory.iter().next() {
+        commands.spawn_bundle(NodeBundle {
+            style : Style {
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: Rect::all(Val::Px(300.0)),
+                ..Default::default()
+            },
+            color: Color::BLACK.into(),
+            ..Default::default()
+        }).with_children(|parent| {
+            // Spawn the title text
+            parent.spawn_bundle(TextBundle {
+                text: Text::with_section(
+                    "Inventory",
+                    TextStyle {
+                        font: fonts.fira_sans.clone(),
+                        font_size: 100.0,
+                        ..Default::default()
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
+            });
+        });
     }
 }

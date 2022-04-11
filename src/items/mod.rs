@@ -1,5 +1,5 @@
-use self::inventory::Inventory;
-use crate::prelude::{Collider, CollidingEntities, PhysicsBodyBundle};
+use self::inventory::{Inventory, spawn_inventory_menu};
+use crate::{prelude::{Collider, CollidingEntities, PhysicsBodyBundle, GameState}, levels::LevelObject};
 use bevy::prelude::*;
 use hashbrown::HashMap;
 use std::ops::{Deref, DerefMut};
@@ -76,8 +76,14 @@ impl Plugin for ItemPlugin {
         app.init_resource::<ItemRegistry>();
         app.add_event::<SpawnItemEvent>();
         app.add_startup_system(register_items);
-        app.add_system(handle_item_collisions);
-        app.add_system(handle_item_spawning);
+        app.add_system_set(SystemSet::on_update(GameState::Gameplay) 
+            .with_system(handle_item_collisions)
+            .with_system(handle_item_spawning)
+        );
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Menu)
+                .with_system(spawn_inventory_menu)
+        );
     }
 }
 
@@ -165,6 +171,7 @@ fn handle_item_spawning(
             })
             .insert(Transform::from_xyz(event.position.x, event.position.y, 0.0))
             .insert(RepresentingItem(item.clone()))
-            .insert(CollidingEntities::default());
+            .insert(CollidingEntities::default())
+            .insert(LevelObject);
     }
 }

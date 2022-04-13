@@ -1,7 +1,7 @@
 use bevy::{app::AppExit, prelude::*};
 use bevy_egui::{egui, EguiContext};
 
-use crate::{state::GameState, levels::SpawnLevelEvent};
+use crate::{state::GameState, levels::{SpawnLevelEvent, DestroyLevelsEvent}};
 
 /// The marker component for ui for the main menu
 #[derive(Debug, Default, Component, Clone)]
@@ -13,10 +13,20 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
+            SystemSet::on_enter(GameState::MainMenu)
+                .with_system(setup)
+        );
+        app.add_system_set(
             SystemSet::on_update(GameState::MainMenu)
                 .with_system(draw_main_menu)
         );
     }
+}
+
+/// Setuo the main menu state
+fn setup(mut destroy_level_events: EventWriter<DestroyLevelsEvent>) {
+    // Destroy all the levels
+    destroy_level_events.send(DestroyLevelsEvent);
 }
 
 /// Draws the main menu using egui

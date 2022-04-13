@@ -9,6 +9,7 @@ pub mod player;
 pub mod startup;
 pub mod state;
 pub mod paused;
+pub mod debug;
 
 pub mod prelude {
     pub use crate::assets::*;
@@ -25,4 +26,5 @@ pub mod prelude {
     pub use crate::startup::*;
     pub use crate::state::*;
     pub use crate::paused::*;
+    pub use crate::debug::*;
 }

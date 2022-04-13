@@ -10,8 +10,9 @@ opt-level = 2
 opt-level = 3
 
 [dependencies]
-bevy = {git = "https://github.com/bevyengine/bevy.git"}
+bevy = "0.6"
+bevy_egui = "0.12"
 hashbrown = "0.12"
 
 [dev-dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy.git", features = ["dynamic"] }
+bevy = { version = "0.6", features = ["dynamic"] }

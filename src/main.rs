@@ -18,6 +18,7 @@ fn main() {
             gravity: Vec2::new(0.0, -80.0),
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(DebugPlugin)
         .add_plugin(AssetsPlugin)
         .add_plugin(LevelPlugin)
         .add_plugin(GameStatePlugin)

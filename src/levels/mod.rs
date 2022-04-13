@@ -120,7 +120,7 @@ fn spawn_level_event(
 
         spawn_item_events.send(SpawnItemEvent {
             item: "mirror".into(),
-            position: Vec2::new(32.0, 20.0),
+            position: Vec2::new(-64.0, 20.0),
             velocity: Vec2::new(0.0, 0.0),
         });
         spawn_item_events.send(SpawnItemEvent {
@@ -131,6 +131,16 @@ fn spawn_level_event(
         spawn_item_events.send(SpawnItemEvent {
             item: "bean".into(),
             position: Vec2::new(64.0, 20.0),
+            velocity: Vec2::new(0.0, 0.0),
+        });
+        spawn_item_events.send(SpawnItemEvent {
+            item: "bean".into(),
+            position: Vec2::new(48.0, 20.0),
+            velocity: Vec2::new(0.0, 0.0),
+        });
+        spawn_item_events.send(SpawnItemEvent {
+            item: "bean".into(),
+            position: Vec2::new(32.0, 20.0),
             velocity: Vec2::new(0.0, 0.0),
         });
     }
